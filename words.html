@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111113">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>토익 단어 집중</title>
+<style>
+/* Words page (2026-11-19). Mobile first, one task per screen, big tap targets (>= 48px).
+   Colours follow the main app (Radix slate + orange/indigo), light and dark. */
+:root{--bg:#f0f0f3;--surface:#fcfcfd;--sunk:#e8e8ec;--line:#d9d9e0;--ink:#1c2024;--ink-2:#60646c;
+  --accent:#cc4e00;--accent-solid:#cc4e00;--accent-ink:#fff;--accent-soft:#ffefd6;--navy:#3a5bc7;--navy-solid:#3e63dd;--navy-ink:#fff;--navy-soft:#edf2fe;
+  --ok:#218358;--ok-bg:#e6f6eb;--no:#ce2c31;--no-bg:#feebec;--warn-bg:#fff7c2;
+  --sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;--serif:Georgia,"Times New Roman",serif;--mono:ui-monospace,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#111113;--surface:#18191b;--sunk:#212225;--line:#363a3f;--ink:#edeef0;--ink-2:#b0b4ba;
+  --accent:#ffa057;--accent-solid:#f76b15;--accent-ink:#17120e;--accent-soft:#331e0b;--navy:#9eb1ff;--navy-solid:#9eb1ff;--navy-ink:#11131f;--navy-soft:#182449;
+  --ok:#3dd68c;--ok-bg:#132d21;--no:#ff9592;--no-bg:#3b1219;--warn-bg:#302008;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;word-break:keep-all;overflow-wrap:break-word;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 96px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:max(12px,env(safe-area-inset-top)) 0 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+header h1{font-size:18px;margin:0;flex:1}
+header a,.link{color:var(--navy);text-decoration:none;font-size:14.5px}
+.hstat{font-family:var(--mono);font-size:13.5px;color:var(--ink-2)}
+main{margin-top:16px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h2{margin:0 0 8px;font-size:18px}
+.muted{color:var(--ink-2);font-size:14.5px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{min-height:48px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:16px}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent-solid);border-color:var(--accent-solid);color:var(--accent-ink)}
+.btn.navy{background:var(--navy-solid);border-color:var(--navy-solid);color:var(--navy-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2);font-weight:500}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.4}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;text-align:left;cursor:pointer;min-height:96px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:13.5px;color:var(--ink-2)}.tile .v{font-family:var(--mono);font-size:26px;font-weight:700}.tile .d{font-size:13.5px;color:var(--ink-2)}
+.tile.go{background:var(--accent-soft);border-color:var(--accent)}
+.tile.rev{background:var(--navy-soft);border-color:var(--navy)}
+.seg{display:flex;gap:4px;background:var(--sunk);border-radius:12px;padding:4px;overflow-x:auto}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:9px 10px;cursor:pointer;white-space:nowrap;font-size:14.5px;color:var(--ink-2)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:700}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.day{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;cursor:pointer;text-align:left;min-height:64px}
+.day b{display:block;font-size:15px}.day small{color:var(--ink-2);font-family:var(--mono);font-size:12.5px}
+.day.done{border-color:var(--ok);background:var(--ok-bg)}.day.now{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--ok)}
+.prog{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:var(--navy);transition:width .2s}
+.wcard{min-height:340px;display:flex;flex-direction:column;gap:10px}
+.pos{display:inline-block;font-size:12.5px;border-radius:99px;background:var(--navy-soft);color:var(--navy);padding:1px 10px}
+.word{font-family:var(--serif);font-size:36px;line-height:1.2;font-weight:600;margin:6px 0 0}
+.ko{font-size:20px;font-weight:700}
+.ex{font-family:var(--serif);font-size:17px;line-height:1.6;background:var(--sunk);border-radius:10px;padding:10px 12px}
+.ex .t{display:block;font-family:var(--sans);font-size:14.5px;color:var(--ink-2);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips span{font-size:13.5px;background:var(--sunk);border-radius:99px;padding:3px 10px}
+.hint{font-size:14.5px;border-left:3px solid var(--accent);padding:2px 10px;color:var(--ink-2)}
+.spk{border:0;background:var(--sunk);border-radius:99px;width:44px;height:44px;cursor:pointer;font-size:18px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{min-height:56px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;font-size:16.5px;display:flex;gap:12px;align-items:center}
+.opt .n{flex:none;width:28px;height:28px;border-radius:99px;border:1.5px solid var(--ink-2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}.opt.wrong{border-color:var(--no);background:var(--no-bg)}
+.opt.en{font-family:var(--serif);font-size:18px}
+.qtype{font-size:13.5px;color:var(--ink-2)}
+.prompt{font-size:26px;font-weight:700;line-height:1.35}.prompt.en{font-family:var(--serif)}
+.prompt.sent{font-family:var(--serif);font-size:19px;font-weight:500;line-height:1.6}
+.blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--ink-2)}
+.fb{border-radius:12px;padding:12px 14px;font-size:15px}.fb.ok{background:var(--ok-bg)}.fb.no{background:var(--no-bg)}
+.list .it{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.list .it:first-child{border-top:0}
+.list .it .w{font-family:var(--serif);font-size:17px;font-weight:600}.list .it .m{color:var(--ink-2);font-size:14.5px}
+.star{border:0;background:transparent;font-size:20px;cursor:pointer;color:var(--ink-2);min-width:40px;min-height:40px}
+.star.on{color:var(--accent)}
+input[type=search]{width:100%;min-height:48px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14.5px;z-index:9}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.foot .in{max-width:640px;margin:0 auto;display:flex;gap:10px}
+.foot .btn{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="./" aria-label="토익 앱으로">← 토익 앱</a><h1>단어 집중</h1><span class="hstat" id="hstat"></span></header>
+  <main id="main"></main>
+</div>
+<div class="foot" id="foot" hidden><div class="in" id="footIn"></div></div>
+<script src="data/vocab.js"></script>
+<script>
+"use strict";
+(function(){
+var V=(window.VOCAB||[]).filter(function(v){return v&&v.w&&v.ko});
+var KEY="toeic800.words.v1",GAP=[0,1,2,4,7,15,30];
+var COURSES=[
+ {id:"tsl",name:"토익 빈출",d:"토익 자료에서 많이 나오는 순서 1,250",f:function(v){return v.src==="TSL"},sort:"rank"},
+ {id:"phave",name:"구동사",d:"자주 쓰는 구동사 150",f:function(v){return v.src==="PHaVE"},sort:"rank"},
+ {id:"phrase",name:"여러 단어 표현",d:"자주 쓰는 표현 448",f:function(v){return v.src==="PHRASE"},sort:"rank"},
+ {id:"topic",name:"업무 주제",d:"회의 · 채용 · 구매 같은 장면별 538",f:function(v){return !v.src},sort:"topic"}];
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function addDays(n){var d=new Date();d.setHours(12);d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+var S=load();
+function load(){var s;try{s=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){s=null}
+  s=s||{};s.set=Object.assign({perDay:30,course:"tsl",auto:true,rate:0.95},s.set||{});s.w=s.w||{};s.log=s.log||{};return s}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("저장 공간이 부족합니다. 설정에서 내보내기 하세요.")}}
+function ws(w){return S.w[w]||{b:0}}
+function logAdd(k,n){var t=today(),L=S.log[t]||{neu:0,rev:0,ok:0,n:0};L[k]=(L[k]||0)+n;S.log[t]=L}
+
+function courseWords(id){var c=COURSES.filter(function(x){return x.id===id})[0]||COURSES[0];
+  var a=V.filter(c.f);if(c.sort==="rank")a.sort(function(x,y){return (x.rank||9999)-(y.rank||9999)});else a.sort(function(x,y){return x.topic<y.topic?-1:x.topic>y.topic?1:0});return a}
+function chunk(a,n){var r=[];for(var i=0;i<a.length;i+=n)r.push(a.slice(i,i+n));return r}
+function dayStat(ws_){var learned=ws_.filter(function(v){return ws(v.w).b>0}).length;return{learned:learned,total:ws_.length,done:learned===ws_.length}}
+function dueList(){var t=today();return V.filter(function(v){var s=S.w[v.w];return s&&s.b>0&&s.due&&s.due<=t}).sort(function(a,b){return (ws(a.w).due<ws(b.w).due)?-1:1})}
+function streak(){var n=0;for(var i=0;i<400;i++){var L=S.log[addDays(-i)];if(L&&(L.neu||L.rev))n++;else if(i>0)break}return n}
+
+// ---------- speech ----------
+var VOICE=null;function pick(){try{var vs=speechSynthesis.getVoices();VOICE=vs.filter(function(v){return/en[-_]US/i.test(v.lang)})[0]||vs.filter(function(v){return/^en/i.test(v.lang)})[0]||null}catch(e){}}
+try{if(window.speechSynthesis){pick();speechSynthesis.onvoiceschanged=pick}}catch(e){}
+function canSpeak(){try{return !!window.speechSynthesis&&typeof SpeechSynthesisUtterance!=="undefined"}catch(e){return false}}
+function say(t){if(!canSpeak())return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=S.set.rate;if(VOICE)u.voice=VOICE;speechSynthesis.speak(u)}catch(e){}}
+
+// ---------- dom ----------
+function h(tag,p){var e=document.createElement(tag);if(p)for(var k in p){var v=p[k];if(v==null||v===false)continue;
+  if(k==="class")e.className=v;else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),v);else if(k==="html")e.innerHTML=v;else e.setAttribute(k,v===true?"":v)}
+  for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null||c===false)continue;(Array.isArray(c)?c:[c]).forEach(function(x){if(x!=null&&x!==false)e.append(x.nodeType?x:document.createTextNode(String(x)))})}return e}
+var M=document.getElementById("main"),FOOT=document.getElementById("foot"),FIN=document.getElementById("footIn");
+function clear(e){while(e.firstChild)e.removeChild(e.firstChild);return e}
+var toastT;function toast(m){var o=document.querySelector(".toast");if(o)o.remove();var t=h("div",{class:"toast",role:"status"},m);document.body.append(t);clearTimeout(toastT);toastT=setTimeout(function(){t.remove()},2200)}
+function foot(btns){clear(FIN);if(!btns){FOOT.hidden=true;return}FOOT.hidden=false;btns.forEach(function(b){FIN.append(b)})}
+function hstat(){var L=S.log[today()]||{};document.getElementById("hstat").textContent="오늘 "+((L.neu||0)+(L.rev||0))+"개 · 연속 "+streak()+"일"}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function top(){window.scrollTo(0,0)}
+
+// ---------- home ----------
+var view={name:"home"};
+function go(v){view=v;sess=null;render();top()}
+function render(){hstat();clear(M);foot(null);({home:vHome,day:vDay,list:vList,set:vSet}[view.name]||vHome)()}
+function vHome(){
+  var cw=courseWords(S.set.course),days=chunk(cw,S.set.perDay),due=dueList();
+  var ni=days.findIndex(function(d){return !dayStat(d).done});
+  var seg=h("div",{class:"seg",role:"group","aria-label":"과정"});
+  COURSES.forEach(function(c){seg.append(h("button",{"aria-pressed":S.set.course===c.id?"true":"false",onclick:function(){S.set.course=c.id;save();render()}},c.name))});
+  var learned=cw.filter(function(v){return ws(v.w).b>0}).length;
+  M.append(
+    h("div",{class:"big"},
+      h("button",{class:"tile rev",onclick:function(){if(!due.length){toast("오늘 복습할 단어가 없습니다");return}startSession(due.slice(0,60),"rev")}},h("span",{class:"k"},"오늘 복습"),h("span",{class:"v"},due.length),h("span",{class:"d"},due.length?"간격이 된 단어부터":"모두 끝냈습니다")),
+      h("button",{class:"tile go",onclick:function(){if(ni<0){toast("이 과정을 다 익혔습니다");return}go({name:"day",i:ni})}},h("span",{class:"k"},"새 단어"),h("span",{class:"v"},ni<0?"완료":"Day "+(ni+1)),h("span",{class:"d"},ni<0?"다른 과정을 고르세요":(days[ni].length-dayStat(days[ni]).learned)+"개 남음"))),
+    h("div",{class:"card"},h("h2",null,"과정"),seg,
+      h("p",{class:"muted",style:"margin:10px 0 0"},COURSES.filter(function(c){return c.id===S.set.course})[0].d+" · 익힌 단어 "+learned+" / "+cw.length),
+      h("div",{class:"prog",style:"margin-top:8px"},h("i",{style:"width:"+Math.round(100*learned/Math.max(1,cw.length))+"%"}))),
+    h("div",{class:"card"},h("h2",null,"Day 목록"),h("p",{class:"muted",style:"margin:0 0 10px"},"하루 "+S.set.perDay+"개씩. 눌러서 단어를 보고 시작합니다."),
+      h("div",{class:"days"},days.map(function(d,i){var st=dayStat(d);return h("button",{class:"day"+(st.done?" done":"")+(i===ni?" now":""),onclick:function(){go({name:"day",i:i})}},h("b",null,"Day "+(i+1)),h("small",null,st.learned+"/"+st.total),h("div",{class:"bar"},h("i",{style:"width:"+Math.round(100*st.learned/st.total)+"%"})))}))),
+    h("div",{class:"row"},h("button",{class:"btn",onclick:function(){go({name:"list"})}},"단어 찾기 · 별표"),h("button",{class:"btn",onclick:function(){var s=V.filter(function(v){return ws(v.w).star});if(!s.length){toast("별표한 단어가 없습니다");return}startSession(shuffle(s).slice(0,40),"rev")}},"별표만 퀴즈"),h("button",{class:"btn",onclick:function(){var s=V.filter(function(v){return (ws(v.w).wrong||0)>0});if(!s.length){toast("틀린 단어가 없습니다");return}startSession(shuffle(s).slice(0,40),"rev")}},"자주 틀린 단어"),h("button",{class:"btn ghost",onclick:function(){go({name:"set"})}},"설정 · 백업")));
+}
+function vDay(){
+  var days=chunk(courseWords(S.set.course),S.set.perDay),d=days[view.i]||[];var st=dayStat(d);
+  M.append(h("div",{class:"card"},h("div",{class:"row",style:"justify-content:space-between"},h("h2",{style:"margin:0"},"Day "+(view.i+1)),h("span",{class:"muted"},st.learned+" / "+st.total+" 익힘")),
+    h("p",{class:"muted",style:"margin:6px 0 0"},"익히기에서 한 장씩 보고, 이어서 퀴즈로 확인합니다. 틀린 단어는 맞힐 때까지 다시 나옵니다.")),
+    h("div",{class:"card list"},d.map(function(v){return itemRow(v)})));
+  var rest=d.filter(function(v){return ws(v.w).b===0});
+  foot([h("button",{class:"btn ghost",onclick:function(){go({name:"home"})}},"뒤로"),
+    h("button",{class:"btn",onclick:function(){startSession(shuffle(d),"quiz")}},"퀴즈만"),
+    h("button",{class:"btn primary",onclick:function(){startSession(rest.length?rest:d,"learn")}},rest.length?"시작 ("+rest.length+")":"다시 익히기")]);
+}
+function itemRow(v){var s=ws(v.w);var st=h("button",{class:"star"+(s.star?" on":""),"aria-label":"별표",onclick:function(){var x=S.w[v.w]||{b:0};x.star=!x.star;S.w[v.w]=x;save();st.className="star"+(x.star?" on":"");st.textContent=x.star?"★":"☆"}},s.star?"★":"☆");
+  return h("div",{class:"it"},st,h("div",{style:"flex:1;min-width:0"},h("div",{class:"w"},v.w," ",h("span",{class:"pos"},v.pos)),h("div",{class:"m"},v.ko+(s.b>0?" · "+["","1일","2일","4일","7일","15일","30일"][s.b]+" 간격":""))),h("button",{class:"spk","aria-label":"발음",onclick:function(){say(v.w)}},"♪"))}
+function vList(){var q=h("input",{type:"search",placeholder:"영어나 뜻으로 찾기",autofocus:true});var out=h("div",{class:"card list"});
+  function run(){clear(out);var t=q.value.trim().toLowerCase();var a=t?V.filter(function(v){return v.w.toLowerCase().indexOf(t)>=0||v.ko.indexOf(t)>=0}):V.filter(function(v){return ws(v.w).star});
+    if(!a.length){out.append(h("p",{class:"muted"},t?"찾은 단어가 없습니다.":"별표한 단어가 여기에 모입니다. 위에서 찾아 ☆ 를 누르세요."));return}a.slice(0,80).forEach(function(v){out.append(itemRow(v))})}
+  q.addEventListener("input",run);M.append(q,out);run();foot([h("button",{class:"btn ghost",onclick:function(){go({name:"home"})}},"뒤로")])}
+function vSet(){
+  var seg=h("div",{class:"seg"});[20,30,40,50].forEach(function(n){seg.append(h("button",{"aria-pressed":S.set.perDay===n?"true":"false",onclick:function(){S.set.perDay=n;save();render()}},n+"개"))});
+  var rs=h("div",{class:"seg"});[[0.8,"느리게"],[0.95,"보통"],[1.1,"빠르게"]].forEach(function(z){rs.append(h("button",{"aria-pressed":S.set.rate===z[0]?"true":"false",onclick:function(){S.set.rate=z[0];save();say("schedule");render()}},z[1]))});
+  var au=h("div",{class:"seg"});[[true,"자동 발음 켬"],[false,"끔"]].forEach(function(z){au.append(h("button",{"aria-pressed":S.set.auto===z[0]?"true":"false",onclick:function(){S.set.auto=z[0];save();render()}},z[1]))});
+  var f=h("input",{type:"file",accept:".json,application/json",hidden:true});
+  f.onchange=function(){var r=new FileReader();r.onload=function(){try{var o=JSON.parse(String(r.result));if(!o||o.app!=="toeic800-words")throw 0;if(!confirm("이 기기의 단어 기록을 백업 내용으로 바꿉니다."))return;S=Object.assign(load(),o.data);save();toast("가져왔습니다");render()}catch(e){toast("이 페이지의 백업 파일이 아닙니다")}};if(f.files[0])r.readAsText(f.files[0]);f.value=""};
+  M.append(h("div",{class:"card"},h("h2",null,"하루 새 단어"),seg,h("p",{class:"muted",style:"margin:8px 0 0"},"바꾸면 Day 나눔이 다시 계산됩니다. 익힌 기록은 단어마다 남아 있어 사라지지 않습니다.")),
+    h("div",{class:"card"},h("h2",null,"발음"),rs,h("div",{style:"height:8px"}),au,canSpeak()?null:h("p",{class:"muted",style:"margin:8px 0 0"},"이 브라우저는 음성을 지원하지 않습니다. 듣기 퀴즈는 빠집니다.")),
+    h("div",{class:"card"},h("h2",null,"기록 백업"),h("p",{class:"muted",style:"margin:0 0 10px"},"기록은 이 기기 브라우저에만 있습니다. 폰과 PC 를 옮길 때 내보내고 가져오세요."),
+      h("div",{class:"row"},h("button",{class:"btn primary",onclick:function(){var a=h("a",{href:URL.createObjectURL(new Blob([JSON.stringify({app:"toeic800-words",v:1,at:new Date().toISOString(),data:S})],{type:"application/json"})),download:"토익단어_기록_"+today()+".json"});document.body.append(a);a.click();a.remove()}},"내보내기"),h("button",{class:"btn",onclick:function(){f.click()}},"가져오기"),f)),
+    h("div",{class:"card"},h("h2",null,"이렇게 공부합니다"),h("p",{class:"muted",style:"margin:0"},"새 단어는 익히기(뜻 · 예문 · 짝꿍 표현을 소리 내어 읽기) 뒤 바로 퀴즈로 꺼내 봅니다. 맞히면 1 · 2 · 4 · 7 · 15 · 30일 간격으로 복습에 다시 나오고, 틀리면 1일 간격으로 돌아갑니다. 꺼내 보는 연습과 간격 반복이 오래 남습니다(Kim and Webb 2022, Pashler et al. 2005).")));
+  foot([h("button",{class:"btn ghost",onclick:function(){go({name:"home"})}},"뒤로")]);
+}
+
+// ---------- session ----------
+var sess=null;
+function startSession(words,mode){
+  sess={mode:mode,words:words.slice(),i:0,phase:mode==="learn"?"learn":"quiz",q:[],done:0,first:{},ok:0,n:0,wrongs:{},start:Date.now()};
+  if(sess.phase==="quiz")buildQuiz();view={name:"sess"};show();top()}
+function buildQuiz(){sess.q=shuffle(sess.words).map(function(v){return makeQ(v)});sess.total=sess.q.length}
+function show(){hstat();clear(M);if(sess.phase==="learn")learnCard();else if(sess.q.length)quizCard();else result()}
+function head(cur,tot,label){return h("div",null,h("div",{class:"row",style:"justify-content:space-between;margin-bottom:6px"},h("span",{class:"qtype"},label),h("span",{class:"hstat"},cur+" / "+tot)),h("div",{class:"prog"},h("i",{style:"width:"+Math.round(100*cur/Math.max(1,tot))+"%"})))}
+function learnCard(){var v=sess.words[sess.i];if(!v){sess.phase="quiz";buildQuiz();show();return}
+  var c=h("div",{class:"card wcard"},head(sess.i+1,sess.words.length,"익히기 · 소리 내어 읽기"),
+    h("div",{class:"row",style:"justify-content:space-between"},h("span",{class:"pos"},v.pos+" · "+v.topic),h("button",{class:"spk","aria-label":"발음",onclick:function(){say(v.w)}},"♪")),
+    h("div",{class:"word"},v.w),h("div",{class:"ko"},v.ko),
+    v.ex?h("div",{class:"ex",onclick:function(){say(v.ex)}},v.ex,h("span",{class:"t"},v.exko||"")):null,
+    v.col&&v.col.length?h("div",{class:"chips"},v.col.map(function(x){return h("span",null,x)})):null,
+    v.fam&&v.fam.length?h("div",{class:"muted"},"같은 집안: "+v.fam.join(", ")):null,
+    v.hint?h("div",{class:"hint"},v.hint):null);
+  M.append(c);if(S.set.auto)setTimeout(function(){say(v.w)},120);
+  foot([h("button",{class:"btn ghost",onclick:quit},"그만"),h("button",{class:"btn",onclick:function(){if(sess.i>0){sess.i--;show()}}},"이전"),h("button",{class:"btn primary",onclick:function(){sess.i++;show();top()}},sess.i+1<sess.words.length?"다음":"퀴즈로")]);
+}
+function samePos(v){return V.filter(function(x){return x.pos===v.pos&&x.w!==v.w})}
+function pick3(pool,v,key){var o=[v],t=0;while(o.length<4&&t<300){var c=pool[Math.floor(Math.random()*pool.length)];t++;if(!c||o.some(function(x){return x[key]===c[key]||x.w===c.w}))continue;o.push(c)}return shuffle(o)}
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function mask(ex,w){if(!ex)return null;var parts=w.replace(/[~()]/g," ").trim().split(/\s+/).filter(Boolean);if(!parts.length)return null;
+  var first=parts[0],stem=first.length>4?first.replace(/(e|y)$/,""):first;
+  var re=new RegExp("\\b("+esc(stem)+"[a-z]*"+(parts.length>1?"\\s+"+parts.slice(1).map(esc).join("\\s+"):"")+")\\b","i");var m=ex.match(re);
+  if(!m)return null;return{before:ex.slice(0,m.index),after:ex.slice(m.index+m[0].length),ans:m[0]}}
+function makeQ(v){var types=["meaning","reverse"];if(mask(v.ex,v.w))types.push("blank","blank");if(canSpeak())types.push("listen");
+  var t=types[Math.floor(Math.random()*types.length)];var pool=samePos(v);if(pool.length<20)pool=V;
+  if(t==="reverse"){var o=pick3(pool,v,"w");return{v:v,t:t,o:o.map(function(x){return x.w}),a:o.indexOf(v)}}
+  if(t==="blank"){var m=mask(v.ex,v.w);var o2=pick3(pool,v,"w");return{v:v,t:t,m:m,o:o2.map(function(x){return x.w}),a:o2.indexOf(v)}}
+  var o3=pick3(pool,v,"ko");return{v:v,t:t,o:o3.map(function(x){return x.ko}),a:o3.indexOf(v)}}
+var LBL={meaning:"뜻 고르기",reverse:"영어 고르기",blank:"예문 빈칸",listen:"듣고 뜻 고르기"};
+function quizCard(){var q=sess.q[0],v=q.v,ans=null;var done=sess.total-sess.q.length;
+  var c=h("div",{class:"card wcard"},head(done,sess.total,LBL[q.t]+(sess.first[v.w]===false?" · 다시":"")));
+  if(q.t==="meaning")c.append(h("div",{class:"row",style:"justify-content:space-between"},h("div",{class:"prompt en"},v.w),h("button",{class:"spk",onclick:function(){say(v.w)}},"♪")));
+  if(q.t==="listen")c.append(h("div",{class:"row"},h("button",{class:"btn navy",onclick:function(){say(v.w)}},"▶ 다시 듣기"),h("span",{class:"muted"},"들리는 단어의 뜻")));
+  if(q.t==="reverse")c.append(h("div",{class:"prompt"},v.ko),h("span",{class:"pos"},v.pos));
+  if(q.t==="blank")c.append(h("div",{class:"prompt sent"},q.m.before,h("span",{class:"blank"}," "),q.m.after),h("div",{class:"muted"},"알맞은 단어를 고르세요(빈칸에는 형태가 바뀌어 들어갈 수 있음)"));
+  var opts=h("div",{class:"opts"});var en=q.t==="reverse"||q.t==="blank";
+  var btns=q.o.map(function(o,k){return h("button",{class:"opt"+(en?" en":""),onclick:function(){choose(k)}},h("span",{class:"n"},k+1),o)});
+  btns.forEach(function(b){opts.append(b)});c.append(opts);var fbBox=h("div");c.append(fbBox);M.append(c);
+  if(q.t==="listen"||(q.t==="meaning"&&S.set.auto))setTimeout(function(){say(v.w)},150);
+  foot([h("button",{class:"btn ghost",onclick:quit},"그만")]);
+  function choose(k){if(ans!==null)return;ans=k;var ok=k===q.a;btns.forEach(function(b,i){b.disabled=true;if(i===q.a)b.classList.add("right");else if(i===k)b.classList.add("wrong")});
+    grade(v,ok);sess.n++;if(ok)sess.ok++;
+    fbBox.append(h("div",{class:"fb "+(ok?"ok":"no")},h("b",null,ok?"맞았습니다":"정답: "+q.o[q.a]),h("div",null,v.w+" · "+v.ko),v.ex?h("div",{class:"muted",style:"margin-top:4px"},q.t==="blank"?(v.exko||""):v.ex):null));
+    if(!ok)say(v.w);
+    sess.q.shift();if(!ok){var again=makeQ(v);sess.q.splice(Math.min(3,sess.q.length),0,again)}
+    foot([h("button",{class:"btn ghost",onclick:quit},"그만"),h("button",{class:"btn primary",id:"nx",onclick:function(){show();top()}},sess.q.length?"다음":"결과 보기")]);
+    var nx=document.getElementById("nx");if(nx)nx.focus()}
+  quizCard.choose=choose;
+}
+function grade(v,ok){var s=S.w[v.w]||{b:0};var firstTry=!(v.w in sess.first);if(firstTry)sess.first[v.w]=ok;
+  var wasNew=!s.b;
+  if(firstTry){if(ok){s.b=wasNew?(sess.mode==="quiz"?3:1):Math.min(6,s.b+1)}else{s.b=1;s.wrong=(s.wrong||0)+1;sess.wrongs[v.w]=v}
+    s.due=addDays(GAP[s.b]);s.last=today();S.w[v.w]=s;logAdd(wasNew?"neu":"rev",1)}
+  logAdd("n",1);if(ok)logAdd("ok",1);save()}
+function result(){var w=Object.keys(sess.wrongs).map(function(k){return sess.wrongs[k]});var first=Object.keys(sess.first),okFirst=first.filter(function(k){return sess.first[k]}).length;
+  M.append(h("div",{class:"card"},h("h2",null,"끝"),h("p",null,"단어 "+first.length+"개 중 한 번에 맞힌 것 "+okFirst+"개("+Math.round(100*okFirst/Math.max(1,first.length))+" %). 틀린 단어는 내일 복습에 다시 나옵니다."),
+    h("p",{class:"muted",style:"margin:0"},"걸린 시간 "+Math.max(1,Math.round((Date.now()-sess.start)/60000))+"분")),
+    w.length?h("div",{class:"card list"},h("h2",null,"틀린 단어"),w.map(function(v){return itemRow(v)})):null);
+  foot([h("button",{class:"btn",onclick:function(){go({name:"home"})}},"처음으로"),w.length?h("button",{class:"btn primary",onclick:function(){startSession(w,"learn")}},"틀린 것 다시 익히기"):null].filter(Boolean));hstat()}
+function quit(){if(sess&&sess.n&&!confirm("그만할까요? 지금까지 푼 것은 저장됐습니다."))return;try{speechSynthesis.cancel()}catch(e){}go({name:"home"})}
+document.addEventListener("keydown",function(e){if(!sess||view.name!=="sess")return;if(/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if(sess.phase==="quiz"&&/^[1-4]$/.test(e.key)&&quizCard.choose){quizCard.choose(Number(e.key)-1)}
+  else if(e.key==="Enter"||e.key===" "){var b=FIN.querySelector(".btn.primary");if(b){e.preventDefault();b.click()}}});
+if(!V.length){M.append(h("div",{class:"card"},"단어 자료를 불러오지 못했습니다. 새로고침해 보세요."))}else render();
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+})();
+</script>
+</body>
+</html>
