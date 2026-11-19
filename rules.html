@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111113">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>영어 기초 규칙</title>
+<style>
+/* Rules page (2026-11-19): sentence skeleton, the four parts of speech and where each one goes,
+   word endings, and the TOEIC Part 5 position rules. Every rule has an example and a check item. */
+:root{--bg:#f0f0f3;--surface:#fcfcfd;--sunk:#e8e8ec;--line:#d9d9e0;--ink:#1c2024;--ink-2:#60646c;--accent-solid:#cc4e00;--accent-ink:#fff;
+  --ok:#218358;--ok-bg:#e6f6eb;--no:#ce2c31;--no-bg:#feebec;--navy:#3a5bc7;
+  --pn:#3a5bc7;--pv:#cc4e00;--pa:#218358;--pd:#8e4ec6;--pp:#60646c;--ps:#0d74ce;--po:#a35829;
+  --sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;--serif:Georgia,"Times New Roman",serif;--mono:ui-monospace,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#111113;--surface:#18191b;--sunk:#212225;--line:#363a3f;--ink:#edeef0;--ink-2:#b0b4ba;--accent-solid:#f76b15;--accent-ink:#17120e;
+  --ok:#3dd68c;--ok-bg:#132d21;--no:#ff9592;--no-bg:#3b1219;--navy:#9eb1ff;--pn:#9eb1ff;--pv:#ffa057;--pa:#3dd68c;--pd:#d19dff;--pp:#b0b4ba;--ps:#70b8ff;--po:#ffa057;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:break-word}
+button{font:inherit;color:inherit}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px 80px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:max(12px,env(safe-area-inset-top)) 0 10px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1}
+header a{color:var(--navy);text-decoration:none;font-size:14.5px}
+nav.toc{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+nav.toc a{white-space:nowrap;font-size:14px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;color:var(--ink);text-decoration:none;background:var(--surface)}
+section{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px;scroll-margin-top:110px}
+h2{font-size:19px;margin:0 0 6px}
+h3{font-size:16.5px;margin:18px 0 6px}
+p{margin:0 0 10px}
+.muted{color:var(--ink-2);font-size:14.5px}
+.en{font-family:var(--serif);font-size:17px;line-height:1.75}
+.sk{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:8px 0}
+.sk span{display:flex;flex-direction:column;border-radius:8px;padding:4px 10px;border:1.5px solid currentColor}
+.sk span i{font-style:normal;font-family:var(--serif);font-size:16.5px;color:var(--ink)}
+.sk span em{font-style:normal;font-size:12px;font-weight:700}
+.r-s{color:var(--ps)}.r-v{color:var(--pv)}.r-o{color:var(--pa)}.r-c{color:var(--pd)}.r-m{color:var(--pp);border-style:dashed!important}
+.pk{display:inline-block;font-size:13px;font-weight:700;border-radius:6px;padding:0 8px;border:1.5px solid currentColor}
+.pk-n{color:var(--pn)}.pk-v{color:var(--pv)}.pk-adj{color:var(--pa)}.pk-adv{color:var(--pd)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:13.5px;color:var(--ink-2);border-top:0}
+mark{background:transparent;color:inherit;font-weight:700;border-bottom:3px solid var(--pv)}
+.rule{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.rule:first-of-type{border-top:0;margin-top:4px;padding-top:4px}
+.rule .t{font-weight:700;font-size:16.5px}
+.clue{font-size:14.5px;background:var(--sunk);border-radius:10px;padding:8px 12px;margin:6px 0}
+.q{margin-top:8px}
+.q .s{font-family:var(--serif);font-size:17px;margin-bottom:8px}
+.blank{display:inline-block;min-width:70px;border-bottom:2px solid var(--ink-2)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{min-height:52px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font-family:var(--serif);font-size:16.5px}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}.opt.wrong{border-color:var(--no);background:var(--no-bg)}
+.fb{border-radius:10px;padding:10px 12px;margin-top:8px;font-size:15px}.fb.ok{background:var(--ok-bg)}.fb.no{background:var(--no-bg)}
+.btn{min-height:48px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent-solid);border-color:var(--accent-solid);color:var(--accent-ink)}
+.big{font-family:var(--serif);font-size:34px;font-weight:600;text-align:center;margin:10px 0}
+.score{font-family:var(--mono);color:var(--ink-2);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><a href="./">← 토익 앱</a><h1>영어 기초 규칙</h1><a href="words.html">단어 집중 →</a></header>
+<nav class="toc"><a href="#s1">1 문장 뼈대</a><a href="#s2">2 품사 넷</a><a href="#s3">3 끝 모양</a><a href="#s4">4 자리 규칙 14</a><a href="#s5">5 품사 맞히기</a></nav>
+
+<section id="s1">
+<h2>1. 문장의 뼈대부터 찾는다</h2>
+<p>영어 문장은 <b>주어 + 동사</b> 가 뼈대다. 동사 뒤에 '무엇을' 이 오면 <b>목적어</b>, 주어가 '어떤 상태' 인지 말하면 <b>보어</b> 다. 나머지(전치사구, 부사, 관계절)는 꾸밈말이라 괄호로 묶고 빼 보면 뼈대가 보인다.</p>
+<div id="skel"></div>
+<h3>확인: 이 문장의 동사는?</h3>
+<div id="verbq"></div>
+</section>
+
+<section id="s2">
+<h2>2. 품사 넷: 무엇을 하고 어디에 오나</h2>
+<table>
+<tr><th>품사</th><th>하는 일</th><th>오는 자리</th></tr>
+<tr><td><span class="pk pk-n">명사</span></td><td>사람 · 물건 · 일의 이름</td><td>주어, 목적어, 관사 · 소유격 · 형용사 뒤, 전치사 뒤</td></tr>
+<tr><td><span class="pk pk-v">동사</span></td><td>주어가 하는 일 · 상태</td><td>주어 뒤, 조동사(will, can, must) 뒤 원형, to 뒤 원형</td></tr>
+<tr><td><span class="pk pk-adj">형용사</span></td><td>명사를 꾸민다</td><td>명사 바로 앞, be동사 · become · remain · seem 뒤</td></tr>
+<tr><td><span class="pk pk-adv">부사</span></td><td>동사 · 형용사 · 문장을 꾸민다</td><td>동사 앞뒤, 형용사 앞, be 와 p.p. 사이, 문장 맨 앞. 빼도 문장이 된다</td></tr>
+</table>
+<h3>같은 집안 네 형태가 들어가는 자리</h3>
+<p class="en"><span class="pk pk-v">동사</span> We <mark>succeed</mark> when we plan ahead.<br>
+<span class="pk pk-n">명사</span> The project was a great <mark>success</mark>.<br>
+<span class="pk pk-adj">형용사</span> She is a <mark>successful</mark> engineer.<br>
+<span class="pk pk-adv">부사</span> The team <mark>successfully</mark> finished the test.</p>
+<p class="muted">뜻은 모두 '성공' 이지만, 문장 속 자리가 품사를 정한다. 토익 Part 5 는 이 자리를 묻는 문제가 가장 많다.</p>
+</section>
+
+<section id="s3">
+<h2>3. 끝 모양으로 품사를 알아본다</h2>
+<table>
+<tr><th>품사</th><th>자주 보는 끝 모양</th><th>예</th></tr>
+<tr><td><span class="pk pk-n">명사</span></td><td class="en" style="font-size:15.5px">-tion -sion -ment -ness -ity -ance -ence -ship -al(일부)<br>사람: -er -or -ant -ee -ist</td><td class="en" style="font-size:15.5px">application, payment, availability, applicant, employee</td></tr>
+<tr><td><span class="pk pk-v">동사</span></td><td class="en" style="font-size:15.5px">-ize -ify -ate -en</td><td class="en" style="font-size:15.5px">organize, notify, estimate, widen</td></tr>
+<tr><td><span class="pk pk-adj">형용사</span></td><td class="en" style="font-size:15.5px">-ive -ous -able -ible -al -ful -less -ic -ent -ant -ary</td><td class="en" style="font-size:15.5px">effective, various, available, additional, efficient</td></tr>
+<tr><td><span class="pk pk-adv">부사</span></td><td class="en" style="font-size:15.5px">형용사 + -ly</td><td class="en" style="font-size:15.5px">effectively, quickly, additionally</td></tr>
+</table>
+<p class="muted" style="margin-top:8px">예외: friendly · costly · timely · likely 는 -ly 지만 형용사다. professional · potential 은 형용사와 명사 둘 다 된다. 끝 모양은 첫 단서이고, 마지막 판단은 문장 속 자리로 한다.</p>
+</section>
+
+<section id="s4">
+<h2>4. 토익 Part 5 자리 규칙 14</h2>
+<p class="muted">규칙 → 단서 → 예문 → 바로 풀기. 모두 직접 만든 연습 문장이다.</p>
+<div id="rules"></div>
+</section>
+
+<section id="s5">
+<h2>5. 품사 맞히기 연습</h2>
+<p class="muted">단어를 보고 품사를 고른다. 단어장 2,386개의 '같은 집안' 자료에서 무작위로 나온다. 끝 모양을 보고 고른 뒤 해설로 확인한다.</p>
+<div id="posgame"></div>
+</section>
+</div>
+<script src="data/vocab.js"></script>
+<script>
+"use strict";
+(function(){
+function h(tag,p){var e=document.createElement(tag);if(p)for(var k in p){var v=p[k];if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}
+  for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null||c===false)continue;(Array.isArray(c)?c:[c]).forEach(function(x){if(x!=null)e.append(x.nodeType?x:document.createTextNode(String(x)))})}return e}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=0.95;speechSynthesis.speak(u)}catch(e){}}
+
+// 1. skeleton examples: [text, role] role s=주어 v=동사 o=목적어 c=보어 m=꾸밈
+var SK=[
+ [["The manager","s"],["approved","v"],["the budget","o"]],
+ [["The new system","s"],["is","v"],["efficient","c"]],
+ [["Our team","s"],["will finish","v"],["the report","o"],["by Friday","m"]],
+ [["The report","s"],["on the new pumps","m"],["is","v"],["ready","c"]],
+ [["The package","s"],["was delivered","v"],["yesterday","m"]],
+ [["All employees","s"],["who joined this year","m"],["must attend","v"],["the safety training","o"]]];
+var RN={s:"주어",v:"동사",o:"목적어",c:"보어",m:"꾸밈말"};
+var skel=document.getElementById("skel");
+SK.forEach(function(row){skel.append(h("div",{class:"sk"},row.map(function(x){return h("span",{class:"r-"+x[1]},h("em",null,RN[x[1]]),h("i",null,x[0]))})))});
+skel.append(h("p",{class:"muted"},"넷째 · 여섯째 문장처럼 주어 뒤에 꾸밈말이 길게 붙어도 동사는 그 뒤에 있다. 동사의 수(is / are)는 꾸밈말이 아니라 주어에 맞춘다."));
+var VQ=[
+ {s:"The list of approved suppliers is posted on the bulletin board.",o:["list","approved","is","posted"],a:2,x:"주어는 The list(꾸밈 of approved suppliers), 동사는 is(posted 는 is 뒤의 보어 · 수동 형태). approved 는 suppliers 를 꾸미는 형용사 역할이다."},
+ {s:"Employees working in the lab must wear safety glasses.",o:["working","must wear","lab","safety"],a:1,x:"working in the lab 은 Employees 를 꾸미는 말이다. 동사는 조동사와 함께 must wear."},
+ {s:"Because of the storm, the shipment arrived two days late.",o:["Because","storm","arrived","late"],a:2,x:"Because of the storm 은 꾸밈말(전치사구). 주어 the shipment 뒤의 arrived 가 동사."},
+ {s:"The proposal that Ms. Lee submitted last week was approved by the board.",o:["submitted","was approved","proposal","board"],a:1,x:"that Ms. Lee submitted last week 은 proposal 을 꾸미는 관계절이다. 문장 전체의 동사는 was approved."}];
+var vq=document.getElementById("verbq");
+VQ.forEach(function(q){vq.append(quiz(q,true))});
+
+// 4. rules
+var R=[
+ {t:"관사 · 소유격 뒤, 전치사 앞 빈칸은 명사",c:"a / the / their 바로 뒤이고, 뒤에 of 나 동사가 오면 명사 자리",s:"The ------- of the new policy will take place next month.",o:["implement","implementation","implemented","implementing"],a:1,x:"The 뒤 · of 앞이라 명사. implementation(시행)."},
+ {t:"관사와 명사 사이는 형용사",c:"a ___ 명사 · the ___ 명사",s:"We are looking for a ------- supplier of office furniture.",o:["rely","reliably","reliable","reliability"],a:2,x:"a 와 supplier(명사) 사이라 형용사 reliable."},
+ {t:"be동사 · become · remain · seem 뒤는 형용사",c:"주어가 '어떤 상태' 인지 말하는 자리(보어)",s:"The north entrance will remain ------- during the renovation.",o:["access","accessible","accessibly","accessing"],a:1,x:"remain 뒤 보어 자리라 형용사 accessible."},
+ {t:"완전한 문장에 더해 동사를 꾸미면 부사",c:"빈칸을 빼도 문장이 성립하면 부사",s:"The technician ------- repaired the leaking pipe before noon.",o:["quick","quickly","quicken","quickness"],a:1,x:"주어 · 동사 · 목적어가 다 있고 repaired 를 꾸미므로 부사 quickly."},
+ {t:"be 와 p.p. 사이, have 와 p.p. 사이는 부사",c:"was ___ reviewed · has ___ improved",s:"The contract was ------- reviewed by the legal team.",o:["careful","carefully","care","cared"],a:1,x:"was 와 reviewed 사이라 부사 carefully."},
+ {t:"조동사 · to 뒤는 동사원형",c:"will / can / must / should / to + 원형",s:"The company plans to ------- its service to three more cities.",o:["expand","expansion","expansive","expanded"],a:0,x:"to 뒤라 동사원형 expand."},
+ {t:"전치사 뒤는 명사 또는 -ing",c:"뒤에 목적어(명사)가 있으면 -ing(동명사)",s:"Before ------- the samples, check the label on each bottle.",o:["test","tested","testing","tests"],a:2,x:"전치사 Before 뒤이고 뒤에 목적어 the samples 가 있으므로 동명사 testing."},
+ {t:"be + p.p. 는 수동: 주어가 당하는 쪽",c:"빈칸 뒤에 목적어가 없고, 주어가 사물이면 수동 후보",s:"The meeting room ------- for the client visit on Friday.",o:["has reserved","is reserving","has been reserved","reserves"],a:2,x:"방은 '예약되는' 쪽이고 뒤에 목적어가 없다. has been reserved(현재완료 수동)."},
+ {t:"have + p.p. 는 완료: since · for 와 짝",c:"since + 시작 시점, for + 기간이면 현재완료",s:"Mr. Ortiz ------- at the water treatment plant since 2021.",o:["works","has worked","worked","will work"],a:1,x:"since 2021 이 있으면 현재완료 has worked."},
+ {t:"주어와 동사의 수를 맞춘다",c:"꾸밈말(of ~, 관계절)을 건너뛰고 진짜 주어를 본다",s:"The results of the water quality test ------- available on the website.",o:["is","are","was","be"],a:1,x:"주어는 results(복수). of the water quality test 는 꾸밈말이다. are."},
+ {t:"전치사 대 접속사: 뒤에 명사냐 절이냐",c:"despite · due to · during + 명사 / although · because · while + 주어 동사",s:"------- the heavy rain, the inspection was completed on schedule.",o:["Although","Despite","Because","While"],a:1,x:"뒤가 명사구(the heavy rain)뿐이라 전치사 Despite."},
+ {t:"시간 · 조건 부사절은 미래 대신 현재",c:"when · if · once · as soon as · before · after 절",s:"Please call the front desk as soon as the shipment -------.",o:["arrives","will arrive","arrived","arriving"],a:0,x:"as soon as 절 안이라 미래(will arrive) 대신 현재 arrives."},
+ {t:"사람 명사 대 일 명사",c:"관사 · 동사의 수 · 뜻으로 사람인지 일인지 가른다",s:"Each ------- must submit two letters of reference by May 1.",o:["apply","application","applicant","applicable"],a:2,x:"Each 뒤 단수 명사이고 '제출하는' 주체라 사람 applicant. application 은 지원(서)."},
+ {t:"관계대명사: 사람 who, 사물 which, 소유 whose",c:"빈칸 뒤에 주어 없이 동사가 오면 주격, 무관사 명사가 오면 whose",s:"The engineer ------- design won the award will speak at the conference.",o:["who","which","whose","whom"],a:2,x:"빈칸 뒤 design(관사 없는 명사) + won 이라 소유격 whose."}];
+var rb=document.getElementById("rules");
+R.forEach(function(r,i){rb.append(h("div",{class:"rule"},h("div",{class:"t"},(i+1)+". "+r.t),h("div",{class:"clue"},"단서: "+r.c),quiz(r,false)))});
+
+function quiz(q,plain){var done=false;var s=q.s;var box=h("div",{class:"q"});
+  var sent=plain?h("div",{class:"s"},s):h("div",{class:"s"},s.split("-------")[0],h("span",{class:"blank"}," "),s.split("-------")[1]);
+  sent.addEventListener("click",function(){say(s.replace("-------",q.o[q.a]))});
+  var fb=h("div");var opts=h("div",{class:"opts"});
+  q.o.forEach(function(o,k){var b=h("button",{class:"opt",onclick:function(){if(done)return;done=true;var ok=k===q.a;
+    Array.prototype.forEach.call(opts.children,function(x,j){x.disabled=true;if(j===q.a)x.classList.add("right");else if(j===k)x.classList.add("wrong")});
+    fb.append(h("div",{class:"fb "+(ok?"ok":"no")},h("b",null,ok?"맞았습니다. ":"정답: "+q.o[q.a]+". "),q.x));say(s.replace("-------",q.o[q.a]))}},o);opts.append(b)});
+  box.append(sent,opts,fb);return box}
+
+// 5. part-of-speech game from the vocabulary's word-family data
+var POS={n:"명사",v:"동사",adj:"형용사",adv:"부사"},CLS={n:"pk-n",v:"pk-v",adj:"pk-adj",adv:"pk-adv"};
+var END=[[/(tion|sion|ment|ness|ity|ance|ence|ship)$/,"n","-tion · -ment · -ness · -ity · -ance 등은 명사 끝 모양"],[/(ee|ist|ant|er|or)$/,"n","-er · -or · -ant · -ee · -ist 는 사람 명사인 경우가 많다"],
+ [/(ize|ise|ify|ate|en)$/,"v","-ize · -ify · -ate · -en 은 동사 끝 모양"],[/ly$/,"adv","-ly 는 대부분 부사(friendly · costly 같은 예외는 형용사)"],
+ [/(ive|ous|able|ible|al|ful|less|ic|ent|ary)$/,"adj","-ive · -ous · -able · -al · -ful · -ent 등은 형용사 끝 모양"]];
+var POOL=[],seen={},dup={};
+(window.VOCAB||[]).forEach(function(v){(v.fam||[]).forEach(function(f){var m=String(f).match(/^([A-Za-z-]+)\((n|v|adj|adv)\)$/);if(!m)return;var w=m[1].toLowerCase();
+  if(seen[w]&&seen[w]!==m[2])dup[w]=1;seen[w]=m[2]})});
+Object.keys(seen).forEach(function(w){if(!dup[w]&&w.length>3)POOL.push({w:w,p:seen[w]})});
+var g=document.getElementById("posgame"),score={n:0,ok:0};
+function round(){while(g.firstChild)g.removeChild(g.firstChild);if(!POOL.length){g.append(h("p",{class:"muted"},"단어 자료를 불러오지 못했습니다."));return}
+  var it=POOL[Math.floor(Math.random()*POOL.length)],ans=false;
+  var tip=END.filter(function(e){return e[0].test(it.w)})[0];
+  g.append(h("div",{class:"score"},"푼 문제 "+score.n+" · 맞힘 "+score.ok+" · 단어 "+POOL.length+"개"),h("div",{class:"big",onclick:function(){say(it.w)}},it.w));
+  var opts=h("div",{class:"opts"}),fb=h("div");
+  ["n","v","adj","adv"].forEach(function(p){opts.append(h("button",{class:"opt",style:"font-family:var(--sans);font-weight:700",onclick:function(){if(ans)return;ans=true;var ok=p===it.p;score.n++;if(ok)score.ok++;
+    Array.prototype.forEach.call(opts.children,function(x){x.disabled=true});this.classList.add(ok?"right":"wrong");
+    fb.append(h("div",{class:"fb "+(ok?"ok":"no")},h("b",null,(ok?"맞았습니다: ":"정답: ")+POS[it.p]+". "),tip?(tip[1]===it.p?tip[2]+".":"끝 모양만 보면 "+POS[tip[1]]+" 같지만 이 단어는 "+POS[it.p]+"다. 예외로 외워 둔다."):"끝 모양 단서가 약한 단어라 통째로 외운다."),
+      h("div",{style:"margin-top:8px"},h("button",{class:"btn primary",onclick:round},"다음 단어")))}},POS[p]))});
+  g.append(opts,fb)}
+round();
+})();
+</script>
+</body>
+</html>

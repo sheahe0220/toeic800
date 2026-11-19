@@ -22,7 +22,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 button,input,select{font:inherit;color:inherit}
 .wrap{max-width:640px;margin:0 auto;padding:0 16px 96px}
 header{position:sticky;top:0;z-index:5;background:var(--bg);padding:max(12px,env(safe-area-inset-top)) 0 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
-header h1{font-size:18px;margin:0;flex:1}
+header h1{font-size:18px;margin:0;flex:1;white-space:nowrap}
+@media (max-width:430px){.hstat{display:none}}
 header a,.link{color:var(--navy);text-decoration:none;font-size:14.5px}
 .hstat{font-family:var(--mono);font-size:13.5px;color:var(--ink-2)}
 main{margin-top:16px;display:flex;flex-direction:column;gap:14px}
@@ -80,11 +81,23 @@ input[type=search]{width:100%;min-height:48px;border:1px solid var(--line);borde
 .foot{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 .foot .in{max-width:640px;margin:0 auto;display:flex;gap:10px}
 .foot .btn{flex:1}
+/* v2: part-of-speech colours (명사 navy, 동사 orange, 형용사 green, 부사 purple) */
+:root{--pn:#3a5bc7;--pv:#cc4e00;--pa:#218358;--pd:#8e4ec6;--pp:#60646c}
+@media (prefers-color-scheme:dark){:root{--pn:#9eb1ff;--pv:#ffa057;--pa:#3dd68c;--pd:#d19dff;--pp:#b0b4ba}}
+.pk{display:inline-block;font-size:13px;font-weight:700;border-radius:6px;padding:1px 8px;border:1.5px solid currentColor;line-height:1.5}
+.pk-n{color:var(--pn)}.pk-v{color:var(--pv)}.pk-adj{color:var(--pa)}.pk-adv{color:var(--pd)}.pk-x{color:var(--pp)}
+mark.hl{background:transparent;color:inherit;font-weight:700;border-bottom:3px solid var(--pp);padding:0 1px}
+mark.hl.pk-n{border-color:var(--pn)}mark.hl.pk-v{border-color:var(--pv)}mark.hl.pk-adj{border-color:var(--pa)}mark.hl.pk-adv{border-color:var(--pd)}
+.why{font-size:14.5px;background:var(--sunk);border-radius:10px;padding:8px 12px}
+.why b{margin-right:6px}
+.fam{display:flex;flex-direction:column;gap:4px}
+.fam div{display:flex;gap:8px;align-items:center;font-family:var(--serif);font-size:16px}
+.fam div.me{font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><a href="./" aria-label="토익 앱으로">← 토익 앱</a><h1>단어 집중</h1><span class="hstat" id="hstat"></span></header>
+  <header><a href="./" aria-label="토익 앱으로">← 토익 앱</a><h1>단어 집중</h1><a href="rules.html">기초 규칙</a><span class="hstat" id="hstat"></span></header>
   <main id="main"></main>
 </div>
 <div class="foot" id="foot" hidden><div class="in" id="footIn"></div></div>
@@ -130,6 +143,41 @@ function clear(e){while(e.firstChild)e.removeChild(e.firstChild);return e}
 var toastT;function toast(m){var o=document.querySelector(".toast");if(o)o.remove();var t=h("div",{class:"toast",role:"status"},m);document.body.append(t);clearTimeout(toastT);toastT=setTimeout(function(){t.remove()},2200)}
 function foot(btns){clear(FIN);if(!btns){FOOT.hidden=true;return}FOOT.hidden=false;btns.forEach(function(b){FIN.append(b)})}
 function hstat(){var L=S.log[today()]||{};document.getElementById("hstat").textContent="오늘 "+((L.neu||0)+(L.rev||0))+"개 · 연속 "+streak()+"일"}
+// ---------- v2: parts of speech, position rules, word family ----------
+var PK={n:["명사","n"],v:["동사","v"],adj:["형용사","adj"],adv:["부사","adv"],prep:["전치사","x"],conj:["접속사","x"],phr:["표현","x"],pron:["대명사","x"],abbr:["약어","x"]};
+function pk(p){p=String(p||"").split(/[\/ ·]/)[0].trim();var map={"명사":"n","동사":"v","형용사":"adj","부사":"adv","전치사":"prep"};p=map[p]||p;return PK[p]?{k:p,name:PK[p][0],cls:"pk-"+PK[p][1]}:{k:"x",name:p||"?",cls:"pk-x"}}
+function pkTag(p){var o=pk(p);return h("span",{class:"pk "+o.cls},o.name)}
+var RULE={
+ n:"명사: 사람 · 물건 · 일의 이름. 관사(a, an, the) · 소유격(my, our, their) · 형용사 뒤, 전치사 뒤, 주어와 목적어 자리에 온다. 끝 모양 -tion -sion -ment -ness -ity -ance -ence, 사람은 -er -or -ant -ee.",
+ v:"동사: 하는 일 · 상태. 주어 뒤, 조동사(will, can, must) 뒤 원형, to 뒤 원형 자리에 온다. 끝 모양 -ize -ify -ate -en.",
+ adj:"형용사: 명사를 꾸민다. 명사 바로 앞(a reliable supplier) 이나 be동사 · become · remain 뒤(is available) 에 온다. 끝 모양 -ive -ous -able -ible -al -ful -less -ic -ent -ant.",
+ adv:"부사: 동사 · 형용사 · 문장 전체를 꾸민다. 빼도 문장이 성립한다. 동사 앞뒤, 형용사 앞, be 와 p.p. 사이(was carefully reviewed) 에 온다. 대부분 -ly 로 끝난다.",
+ prep:"전치사: 뒤에 명사(구)나 -ing 가 온다. 예: despite the rain, before leaving.",
+ conj:"접속사: 뒤에 주어 + 동사(절)가 온다. 예: although it rained, because the store was closed.",
+ phr:"표현: 여러 단어가 한 덩어리로 뜻을 만든다. 통째로 외우고 예문 속 자리를 같이 본다."};
+var ART=/^(a|an|the|this|that|these|those|his|her|their|our|its|my|your|each|every|any|some|no|another)$/i,BE=/^(am|is|are|was|were|be|been|being|become|becomes|became|remain|remains|remained|seem|seems|seemed|stay|stays)$/i,
+ MOD=/^(will|would|can|could|should|must|may|might|shall|to)$/i,PREP=/^(of|for|in|on|at|with|by|from|about|into|after|before|without|during|despite|through|upon|regarding)$/i;
+function clue(before,p){var m=String(before||"").trim().match(/([A-Za-z']+)\W*$/);var pr=m?m[1]:"";if(!pr)return null;
+  if(p==="n"&&ART.test(pr))return"앞에 '"+pr+"' 가 있어 명사 자리";
+  if(p==="n"&&PREP.test(pr))return"전치사 '"+pr+"' 뒤라 명사 자리";
+  if(p==="adj"&&BE.test(pr))return"'"+pr+"' 뒤에서 주어의 상태를 말하는 형용사 자리";
+  if(p==="adj"&&ART.test(pr))return"'"+pr+"' 와 명사 사이라 형용사 자리";
+  if(p==="v"&&MOD.test(pr))return"'"+pr+"' 뒤라 동사원형 자리";
+  if(p==="adv")return"빼도 문장이 성립하는 꾸밈 자리라 부사";
+  return null}
+function famList(v){var out=[],seen={};(v.fam||[]).forEach(function(f){var m=String(f).match(/^(.+?)\((\w+)\)$/);if(m){var w=m[1].trim(),p=m[2];out.push({w:w,p:p});seen[w.toLowerCase()]=(seen[w.toLowerCase()]||0)+1}});
+  out.forEach(function(x){x.dup=seen[x.w.toLowerCase()]>1});return out}
+function famQ(v){var fl=famList(v).filter(function(x){return !x.dup&&!/\s/.test(x.w)});if(fl.length<3)return null;
+  var ex=String(v.ex||""),re=/[A-Za-z][A-Za-z'-]*/g,tk;
+  while((tk=re.exec(ex))){var low=tk[0].toLowerCase();
+    for(var i=0;i<fl.length;i++){if(isForm(low,fl[i].w.toLowerCase())){
+      var m={before:ex.slice(0,tk.index),after:ex.slice(tk.index+tk[0].length),ans:tk[0]};
+      var o=shuffle([fl[i]].concat(shuffle(fl.filter(function(x){return x!==fl[i]})).slice(0,3)));
+      return{v:v,t:"family",m:m,o:o.map(function(x){return x.w}),a:o.indexOf(fl[i]),hit:fl[i],fam:o}}}}
+  return null}
+// token is the form itself or a regular inflection of it (plural, past, -ing, 3rd person)
+function isForm(t,w){if(t===w)return true;var b=w.replace(/e$/,""),y=w.replace(/y$/,"i");
+  return [w+"s",w+"es",w+"d",w+"ed",b+"ing",b+"ed",w+"ing",y+"es",y+"ed"].indexOf(t)>=0}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
 function top(){window.scrollTo(0,0)}
 
@@ -194,15 +242,24 @@ function show(){hstat();clear(M);if(sess.phase==="learn")learnCard();else if(ses
 function head(cur,tot,label){return h("div",null,h("div",{class:"row",style:"justify-content:space-between;margin-bottom:6px"},h("span",{class:"qtype"},label),h("span",{class:"hstat"},cur+" / "+tot)),h("div",{class:"prog"},h("i",{style:"width:"+Math.round(100*cur/Math.max(1,tot))+"%"})))}
 function learnCard(){var v=sess.words[sess.i];if(!v){sess.phase="quiz";buildQuiz();show();return}
   var c=h("div",{class:"card wcard"},head(sess.i+1,sess.words.length,"익히기 · 소리 내어 읽기"),
-    h("div",{class:"row",style:"justify-content:space-between"},h("span",{class:"pos"},v.pos+" · "+v.topic),h("button",{class:"spk","aria-label":"발음",onclick:function(){say(v.w)}},"♪")),
+    h("div",{class:"row",style:"justify-content:space-between"},h("div",{class:"row",style:"gap:6px"},pkTag(v.pos),h("span",{class:"muted"},v.topic)),h("button",{class:"spk","aria-label":"발음",onclick:function(){say(v.w)}},"♪")),
     h("div",{class:"word"},v.w),h("div",{class:"ko"},v.ko),
-    v.ex?h("div",{class:"ex",onclick:function(){say(v.ex)}},v.ex,h("span",{class:"t"},v.exko||"")):null,
-    v.col&&v.col.length?h("div",{class:"chips"},v.col.map(function(x){return h("span",null,x)})):null,
-    v.fam&&v.fam.length?h("div",{class:"muted"},"같은 집안: "+v.fam.join(", ")):null,
+    exBlock(v),
+    v.col&&v.col.length?h("div",null,h("div",{class:"qtype"},"같이 붙어 다니는 표현"),h("div",{class:"chips"},v.col.map(function(x){return h("span",null,x)}))):null,
+    famBlock(v),
+    h("details",null,h("summary",{class:"qtype",style:"cursor:pointer"},pk(v.pos).name+" 은(는) 문장 어디에 오나"),h("div",{class:"why",style:"margin-top:6px"},RULE[pk(v.pos).k]||RULE.phr)),
     v.hint?h("div",{class:"hint"},v.hint):null);
   M.append(c);if(S.set.auto)setTimeout(function(){say(v.w)},120);
   foot([h("button",{class:"btn ghost",onclick:quit},"그만"),h("button",{class:"btn",onclick:function(){if(sess.i>0){sess.i--;show()}}},"이전"),h("button",{class:"btn primary",onclick:function(){sess.i++;show();top()}},sess.i+1<sess.words.length?"다음":"퀴즈로")]);
 }
+function exBlock(v){if(!v.ex)return null;var m=mask(v.ex,v.w),p=pk(v.pos);
+  var sent=m?h("span",null,m.before,h("mark",{class:"hl "+p.cls},m.ans),m.after):v.ex;
+  var c=m?clue(m.before,p.k):null;
+  return h("div",{class:"ex",onclick:function(){say(v.ex)}},sent,h("span",{class:"t"},v.exko||""),
+    m?h("div",{class:"why",style:"margin-top:8px;font-family:var(--sans)"},h("b",null,"이 자리:"),(c?pk(v.pos).name+", "+c:"이 문장에서 "+pk(v.pos).name+(pk(v.pos).name==="표현"?"으로":"로")+" 쓰였다")):null)}
+function famBlock(v){var fl=famList(v);if(fl.length<2)return null;
+  return h("div",null,h("div",{class:"qtype"},"같은 집안 단어 (품사가 다르면 들어가는 자리도 다르다)"),
+    h("div",{class:"fam"},fl.map(function(x){return h("div",{class:x.w.toLowerCase()===v.w.toLowerCase()?"me":null},pkTag(x.p),x.w)})))}
 function samePos(v){return V.filter(function(x){return x.pos===v.pos&&x.w!==v.w})}
 function pick3(pool,v,key){var o=[v],t=0;while(o.length<4&&t<300){var c=pool[Math.floor(Math.random()*pool.length)];t++;if(!c||o.some(function(x){return x[key]===c[key]||x.w===c.w}))continue;o.push(c)}return shuffle(o)}
 function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
@@ -211,24 +268,35 @@ function mask(ex,w){if(!ex)return null;var parts=w.replace(/[~()]/g," ").trim().
   var re=new RegExp("\\b("+esc(stem)+"[a-z]*"+(parts.length>1?"\\s+"+parts.slice(1).map(esc).join("\\s+"):"")+")\\b","i");var m=ex.match(re);
   if(!m)return null;return{before:ex.slice(0,m.index),after:ex.slice(m.index+m[0].length),ans:m[0]}}
 function makeQ(v){var types=["meaning","reverse"];if(mask(v.ex,v.w))types.push("blank","blank");if(canSpeak())types.push("listen");
-  var t=types[Math.floor(Math.random()*types.length)];var pool=samePos(v);if(pool.length<20)pool=V;
+  var fq=famQ(v);if(fq){types.push("family","family","family");}
+  var t=types[Math.floor(Math.random()*types.length)];if(t==="family")return fq;var pool=samePos(v);if(pool.length<20)pool=V;
   if(t==="reverse"){var o=pick3(pool,v,"w");return{v:v,t:t,o:o.map(function(x){return x.w}),a:o.indexOf(v)}}
   if(t==="blank"){var m=mask(v.ex,v.w);var o2=pick3(pool,v,"w");return{v:v,t:t,m:m,o:o2.map(function(x){return x.w}),a:o2.indexOf(v)}}
   var o3=pick3(pool,v,"ko");return{v:v,t:t,o:o3.map(function(x){return x.ko}),a:o3.indexOf(v)}}
-var LBL={meaning:"뜻 고르기",reverse:"영어 고르기",blank:"예문 빈칸",listen:"듣고 뜻 고르기"};
+var LBL={meaning:"뜻 고르기",reverse:"영어 고르기",blank:"예문 빈칸",listen:"듣고 뜻 고르기",family:"품사 고르기 (토익 Part 5 형식)"};
 function quizCard(){var q=sess.q[0],v=q.v,ans=null;var done=sess.total-sess.q.length;
   var c=h("div",{class:"card wcard"},head(done,sess.total,LBL[q.t]+(sess.first[v.w]===false?" · 다시":"")));
   if(q.t==="meaning")c.append(h("div",{class:"row",style:"justify-content:space-between"},h("div",{class:"prompt en"},v.w),h("button",{class:"spk",onclick:function(){say(v.w)}},"♪")));
   if(q.t==="listen")c.append(h("div",{class:"row"},h("button",{class:"btn navy",onclick:function(){say(v.w)}},"▶ 다시 듣기"),h("span",{class:"muted"},"들리는 단어의 뜻")));
   if(q.t==="reverse")c.append(h("div",{class:"prompt"},v.ko),h("span",{class:"pos"},v.pos));
+  if(q.t==="family")c.append(h("div",{class:"prompt sent"},q.m.before,h("span",{class:"blank"}," "),q.m.after),h("div",{class:"muted"},"같은 집안 단어 중 빈칸 자리에 맞는 품사를 고르세요. 빈칸 앞뒤 단어가 단서입니다."));
   if(q.t==="blank")c.append(h("div",{class:"prompt sent"},q.m.before,h("span",{class:"blank"}," "),q.m.after),h("div",{class:"muted"},"알맞은 단어를 고르세요(빈칸에는 형태가 바뀌어 들어갈 수 있음)"));
-  var opts=h("div",{class:"opts"});var en=q.t==="reverse"||q.t==="blank";
-  var btns=q.o.map(function(o,k){return h("button",{class:"opt"+(en?" en":""),onclick:function(){choose(k)}},h("span",{class:"n"},k+1),o)});
+  var opts=h("div",{class:"opts"});var en=q.t==="reverse"||q.t==="blank"||q.t==="family";
+  var btns=q.o.map(function(o,k){return h("button",{class:"opt"+(en?" en":""),onclick:function(){choose(k)}},h("span",{class:"n"},k+1),o,q.t==="family"?h("span",{class:"pk-tagslot",hidden:true}):null)});
   btns.forEach(function(b){opts.append(b)});c.append(opts);var fbBox=h("div");c.append(fbBox);M.append(c);
   if(q.t==="listen"||(q.t==="meaning"&&S.set.auto))setTimeout(function(){say(v.w)},150);
   foot([h("button",{class:"btn ghost",onclick:quit},"그만")]);
   function choose(k){if(ans!==null)return;ans=k;var ok=k===q.a;btns.forEach(function(b,i){b.disabled=true;if(i===q.a)b.classList.add("right");else if(i===k)b.classList.add("wrong")});
     grade(v,ok);sess.n++;if(ok)sess.ok++;
+    if(q.t==="family"){btns.forEach(function(b,i){b.append(h("span",{style:"margin-left:auto"},pkTag(q.fam[i].p)))});
+      var hp=pk(q.hit.p),cl=clue(q.m.before,hp.k);
+      fbBox.append(h("div",{class:"fb "+(ok?"ok":"no")},h("b",null,(ok?"맞았습니다: ":"정답: ")+q.o[q.a]+" ("+hp.name+")"),
+        h("div",{class:"prompt sent",style:"font-size:16.5px;margin-top:4px"},q.m.before,h("mark",{class:"hl "+hp.cls},q.m.ans),q.m.after),
+        h("div",{style:"margin-top:4px"},cl?"단서: "+cl+".":"이 문장에서는 "+hp.name+" 자리입니다."),
+        q.fam.filter(function(x,i){return i!==q.a&&pk(x.p).k===hp.k}).length?h("div",{class:"muted",style:"margin-top:4px"},"같은 "+hp.name+"인 보기("+q.fam.filter(function(x,i){return i!==q.a&&pk(x.p).k===hp.k}).map(function(x){return x.w}).join(", ")+")와는 뜻으로 가른다. 사람(-ian, -er, -or, -ant, -ee)인지 일 · 물건인지 본다."):null,
+        h("div",{class:"muted",style:"margin-top:4px"},RULE[hp.k]||""),v.exko?h("div",{class:"muted",style:"margin-top:4px"},v.exko):null));
+      sess.q.shift();if(!ok){sess.q.splice(Math.min(3,sess.q.length),0,makeQ(v))}
+      foot([h("button",{class:"btn ghost",onclick:quit},"그만"),h("button",{class:"btn primary",id:"nx",onclick:function(){show();top()}},sess.q.length?"다음":"결과 보기")]);return}
     fbBox.append(h("div",{class:"fb "+(ok?"ok":"no")},h("b",null,ok?"맞았습니다":"정답: "+q.o[q.a]),h("div",null,v.w+" · "+v.ko),v.ex?h("div",{class:"muted",style:"margin-top:4px"},q.t==="blank"?(v.exko||""):v.ex):null));
     if(!ok)say(v.w);
     sess.q.shift();if(!ok){var again=makeQ(v);sess.q.splice(Math.min(3,sess.q.length),0,again)}
