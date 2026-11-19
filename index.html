@@ -574,6 +574,7 @@ function put(col,id,data,merge){ if(!S.db)return Promise.resolve();
 function del(col,id){if(!S.db)return;writeChain=writeChain.then(function(){return S.db.collection(col).doc(id).delete()}).catch(function(e){toast(errMsg(e))})}
 function dcopy(o){return o?JSON.parse(JSON.stringify(o)):o}
 function recordAnswer(item,ok,sec){
+  S.seen=S.seen||{};S.seen[item.id]=TODAY;put("seen","main",{ids:S.seen});
   var d=dcopy(S.days[TODAY])||{min:0,n:0,c:0,byPart:{}};
   d.n=(d.n||0)+1;d.c=(d.c||0)+(ok?1:0);d.byPart=d.byPart||{};var bp=d.byPart[item.part]||{n:0,c:0};bp.n++;if(ok)bp.c++;d.byPart[item.part]=bp;
   S.days[TODAY]=d;
@@ -641,7 +642,7 @@ function viewDrill(root){
   [5,10,20,30].forEach(function(m){segT.append(h("button",{"aria-pressed":m===mins?"true":"false",onclick:function(){S._pickMin=m;render()}},m+"분"))});
   var segP=h("div",{class:"seg",role:"group","aria-label":"파트"});
   ["P2","P3","P4","P5","P6","P7"].forEach(function(p){segP.append(h("button",{"aria-pressed":parts.indexOf(p)>=0?"true":"false",onclick:function(){var a=parts.slice();var i=a.indexOf(p);if(i>=0){if(a.length>1)a.splice(i,1)}else a.push(p);S._pickParts=a;render()}},p.replace("P","Part ")))});
-  card.append(h("div",{class:"row"},segT,segP),h("div",{class:"row",style:"margin-top:12px"},h("button",{class:"btn primary",onclick:function(){startSession(mins,parts)}},"시작"),h("span",{class:"muted"},"문제 은행 "+allItems().filter(function(x){return parts.indexOf(x.part)>=0}).length+"문항")));
+  card.append(h("div",{class:"row"},segT,segP),h("div",{class:"row",style:"margin-top:12px"},h("button",{class:"btn primary",onclick:function(){startSession(mins,parts)}},"시작"),h("span",{class:"muted"},"문제 은행 "+allItems().filter(function(x){return parts.indexOf(x.part)>=0}).length+"문항 · 안 푼 문제 "+allItems().filter(function(x){return parts.indexOf(x.part)>=0&&!(S.seen||{})[x.id]}).length+"개")));
   root.append(card);
   // generator
   var gen=h("div",{class:"card"},h("h2",null,"새 문제 만들기 (Claude)"),h("p",{class:"muted",style:"margin:0 0 10px"},"기본 문제를 다 풀었으면 Claude 가 토익 형식의 새 문제를 만들어 저장합니다. 처음 한 번은 사용 허락을 묻습니다. 만든 문제는 영구 저장되어 다시 풀 수 있습니다."));
@@ -661,7 +662,7 @@ function pickItems(parts,minutes,onlyIds){
   var pool=allItems().filter(function(x){return parts.indexOf(x.part)>=0&&(!onlyIds||onlyIds.indexOf(x.id)>=0)});
   // 안 풀었거나 오답인 것 우선
   var seen={};Object.keys(S.wrong).forEach(function(k){seen[k]=1});
-  pool=shuffle(pool).sort(function(a,b){var wa=S.wrong[a.id]&&!S.wrong[a.id].mastered?0:1,wb=S.wrong[b.id]&&!S.wrong[b.id].mastered?0:1;return wa-wb});
+  var seenMap=S.seen||{},W=[],U=[],O=[];shuffle(pool).forEach(function(x){var w=S.wrong[x.id];if(w&&!w.mastered&&w.last!==TODAY)W.push(x);else if(!seenMap[x.id])U.push(x);else O.push(x)});O.sort(function(a,b){return (seenMap[a.id]||"")<(seenMap[b.id]||"")?-1:1});pool=[];while(W.length||U.length){if(U.length)pool.push(U.shift());if(U.length)pool.push(U.shift());if(W.length)pool.push(W.shift())}pool=pool.concat(O);
   // P6/P7 은 세트 단위로 묶는다
   var out=[],budget=minutes*60,used=0,sets={};
   for(var i=0;i<pool.length&&used<budget;i++){var it=pool[i];
@@ -1203,6 +1204,7 @@ render();
   if(!db){n.append(h("div",{class:"notice"},"기록 저장소에 연결되지 않았습니다. claude.ai 에 로그인한 상태로 열면 공부 시간 · 오답 · 단어 진도가 저장됩니다."));render();return}
   S.db=db;
   db.collection("days").onSnapshot(function(s){s.docs.forEach(function(d){S.days[d.id]=dcopy(d.data())});renderHeader();if(S.view==="log"||S.view==="home")render()},function(){});
+  db.doc("seen/main").onSnapshot(function(d){if(d.exists){S.seen=Object.assign({},(d.data()||{}).ids||{});if(S.view==="drill"&&!(S.session&&!S.session.done))render()}},function(){});
   db.collection("wrong").onSnapshot(function(s){var w={};s.docs.forEach(function(d){w[d.id]=Object.assign({},d.data())});S.wrong=w;if(S.view==="wrong")render()},function(){});
   db.collection("gen").onSnapshot(function(s){S.gen=s.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o});if(S.view==="drill"&&!(S.session&&!S.session.done))render()},function(){});
   db.doc("srs/main").onSnapshot(function(d){if(d.exists){var x=d.data();S.srs={words:Object.assign({},x.words||{})}}},function(){});
